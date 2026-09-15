@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central Gaia - Protocolo Final</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            transition: background-color 1s, color 1s;
+        }
+        .container {
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff00;
+            max-width: 90%;
+            transition: all 1s;
+        }
+        h1 { 
+            font-size: 26px; 
+            letter-spacing: 2px; 
+        }
+        p { 
+            font-size: 16px; 
+            margin-bottom: 30px; 
+            line-height: 1.5;
+        }
+        button {
+            background-color: transparent;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        button:hover, button:active {
+            background-color: #00ff00;
+            color: #050505;
+        }
+        /* Classe ativada quando eles acertam a senha */
+        .sucesso {
+            background-color: #00ff00;
+            color: #050505;
+        }
+        .sucesso .container {
+            border-color: #050505;
+            box-shadow: none;
+        }
+        .sucesso button { 
+            display: none; 
+        }
+        #resultado {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="painel">
+        <h1>SISTEMA CENTRAL GAIA</h1>
+        <p id="instrucao">Aguardando inserção da chave vocal.<br>Pressione o botão e diga a solução.</p>
+        <button id="btn-falar">INICIAR PROTOCOLO VOCAL</button>
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        const btnFalar = document.getElementById('btn-falar');
+        const resultado = document.getElementById('resultado');
+        const instrucao = document.getElementById('instrucao');
+
+        // A SENHA SECRETA DO JOGO
+        const senhaCorreta = "preservar a biodiversidade";
+
+        // Verifica se o navegador suporta comando de voz
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR'; // Define o idioma para português
+            recognition.continuous = false;
+
+            btnFalar.addEventListener('click', () => {
+                recognition.start();
+                btnFalar.textContent = "ESCUTANDO...";
+                resultado.textContent = "";
+                resultado.style.color = "#00ff00";
+            });
+
+            recognition.onresult = (event) => {
+                const fala = event.results[0][0].transcript;
+                
+                // Limpa a fala tirando acentos, pontuação e letras maiúsculas
+                const falaLimpa = fala.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/[.,!?]/g, "").trim();
+                const senhaLimpa = senhaCorreta.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").trim();
+
+                if (falaLimpa === senhaLimpa) {
+                    // SE ACERTAREM
+                    document.body.classList.add('sucesso');
+                    document.querySelector('h1').textContent = "ACESSO CONCEDIDO";
+                    instrucao.innerHTML = "PROGRAMA DE RESOLUÇÃO ATIVADO.<br><br>A atmosfera foi estabilizada. Parabéns, equipe!";
+                    resultado.style.color = "#050505";
+                    resultado.textContent = "Chave reconhecida: " + fala;
+                } else {
+                    // SE ERRAREM
+                    btnFalar.textContent = "INICIAR PROTOCOLO VOCAL";
+                    resultado.style.color = "red";
+                    resultado.textContent = "Acesso Negado. Você disse: '" + fala + "'";
+                }
+            };
+
+            recognition.onerror = () => {
+                btnFalar.textContent = "INICIAR PROTOCOLO VOCAL";
+                resultado.style.color = "red";
+                resultado.textContent = "Erro no microfone. Permita o acesso e tente novamente.";
+            };
+            
+            recognition.onend = () => {
+                if(!document.body.classList.contains('sucesso')) {
+                    btnFalar.textContent = "INICIAR PROTOCOLO VOCAL";
+                }
+            };
+
+        } else {
+            resultado.style.color = "red";
+            resultado.textContent = "Navegador não suportado. Abra este link no Google Chrome.";
+        }
+    </script>
+
+</body>
+</html>
