@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central Gaia - Setor 1</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            padding: 30px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0 0 15px #00ff00;
+            max-width: 500px;
+            width: 90%;
+            background-color: #0a0a0a;
+        }
+        h1 { 
+            font-size: 24px; 
+            letter-spacing: 2px; 
+            border-bottom: 1px dashed #00ff00;
+            padding-bottom: 15px;
+        }
+        .input-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+        label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        input {
+            width: calc(100% - 20px);
+            background-color: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
+            outline: none;
+        }
+        input:focus {
+            box-shadow: 0 0 10px #00ff00;
+        }
+        button {
+            background-color: transparent;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            margin-top: 10px;
+            width: 100%;
+        }
+        button:hover, button:active {
+            background-color: #00ff00;
+            color: #050505;
+        }
+        #mensagem {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 15px;
+            min-height: 40px;
+        }
+        .erro {
+            color: #ff3333;
+            text-shadow: 0 0 5px #ff3333;
+        }
+        .sucesso {
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>TERMINAL SETOR 1</h1>
+        
+        <div id="interface-login">
+            <p>Insira os dados atmosféricos para estabilizar a rede.</p>
+            
+            <div class="input-group">
+                <label for="co2">NÍVEL DE CO2 (ppm):</label>
+                <input type="number" id="co2" autocomplete="off">
+            </div>
+            
+            <div class="input-group">
+                <label for="ch4">NÍVEL DE CH4 (ppb):</label>
+                <input type="number" id="ch4" autocomplete="off">
+            </div>
+            
+            <button onclick="verificarDados()">AUTENTICAR DADOS</button>
+        </div>
+
+        <div id="mensagem"></div>
+    </div>
+
+    <script>
+        function verificarDados() {
+            // Valores digitados pelos jogadores
+            const valorCO2 = document.getElementById('co2').value;
+            const valorCH4 = document.getElementById('ch4').value;
+            const mensagem = document.getElementById('mensagem');
+            const interfaceLogin = document.getElementById('interface-login');
+
+            // Respostas corretas
+            const respostaCO2 = "425";
+            const respostaCH4 = "1939";
+
+            if (valorCO2 === respostaCO2 && valorCH4 === respostaCH4) {
+                // SE ACERTAR
+                interfaceLogin.style.display = 'none'; // Esconde os campos de digitar
+                mensagem.className = 'sucesso';
+                mensagem.innerHTML = `
+                    <h2 style="color: #00ff00;">🟢 SISTEMA ESTABILIZADO 🟢</h2>
+                    <p>Acesso concedido ao banco de dados.</p>
+                    <p>DOCUMENTO RECUPERADO:</p>
+                    <p style="border: 1px solid #00ff00; padding: 10px; font-size: 18px;">
+                    "Aviso dos cientistas do mundo à humanidade"
+                    </p>
+                `;
+            } else {
+                // SE ERRAR
+                mensagem.className = 'erro';
+                mensagem.innerHTML = `
+                    [ACESSO NEGADO] Dados incorretos.<br><br>
+                    <span style="color: #ffff00; font-size: 13px;">DICA DO SISTEMA: Verifique seus relatórios. O sistema aceita apenas a medição do ano corrente (2026).</span>
+                `;
+                
+                // Limpa os campos para eles tentarem de novo
+                document.getElementById('co2').value = '';
+                document.getElementById('ch4').value = '';
+            }
+        }
+    </script>
+
+</body>
+</html>
