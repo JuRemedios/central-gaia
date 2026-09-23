@@ -87,7 +87,92 @@
         // A SENHA SECRETA DO JOGO
         const senhaCorreta = "preservar a biodiversidade";
         
-        // Contador de erros
+        // Contadores e travas de segurança
         let tentativasErradas = 0;
+        let estaEscutando = false; // Evita que cliques duplos quebrem o botão
 
-        const SpeechRecognition = window.
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR'; 
+            recognition.continuous = false;
+
+            btnFalar.addEventListener('click', () => {
+                // Se já estiver processando, ignora novos cliques
+                if (estaEscutando) return;
+
+                try {
+                    recognition.start();
+                    estaEscutando = true; // Trava o botão
+                    btnFalar.textContent = "ESCUTANDO...";
+                    resultado.textContent = "";
+                    resultado.style.color = "#00ff00";
+                } catch (erro) {
+                    console.log("O microfone já estava ocupado ou travado pelo navegador.");
+                }
+            });
+
+            recognition.onresult = (event) => {
+                estaEscutando = false; // Libera o botão
+                const fala = event.results[0][0].transcript;
+                
+                const falaLimpa = fala.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/[.,!?]/g, "").trim();
+                const senhaLimpa = senhaCorreta.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").trim();
+
+                if (falaLimpa === senhaLimpa) {
+                    // SE ACERTAREM
+                    tentativasErradas = 0;
+                    document.body.classList.add('sucesso');
+                    document.querySelector('h1').textContent = "ACESSO CONCEDIDO";
+                    instrucao.innerHTML = "PROGRAMA DE RESOLUÇÃO ATIVADO.<br><br>A atmosfera foi estabilizada. Parabéns, equipe!";
+                    resultado.style.color = "#050505";
+                    resultado.textContent = "Chave reconhecida: " + fala;
+                } else {
+                    // SE ERRAREM
+                    tentativasErradas++;
+                    let dica = "";
+                    
+                    if (tentativasErradas === 1) {
+                        dica = "DICA: a senha para escapar é uma frase.";
+                    } else if (tentativasErradas === 2) {
+                        dica = "DICA: seu tempo está acabando, a senha é uma frase com 3 palavras.";
+                    } else {
+                        dica = "DICA: Por favor, corram! A senha abreviada é P... a ... B.";
+                    }
+
+                    btnFalar.textContent = "INICIAR PROTOCOLO VOCAL";
+                    resultado.style.color = "red";
+                    resultado.innerHTML = "Acesso Negado. Você disse: '" + fala + "'<br><br><span style='color: #ffff00; font-size: 15px;'>" + dica + "</span>";
+                }
+            };
+
+            recognition.onerror = (event) => {
+                estaEscutando = false; // Libera o botão
+                
+                // Se o erro for "no-speech" (falou nada), apenas volta ao normal sem mostrar erro grave
+                if(event.error === 'no-speech') {
+                    btnFalar.textContent = "INICIAR PROTOCOLO VOCAL";
+                    return;
+                }
+                
+                btnFalar.textContent = "INICIAR PROTOCOLO VOCAL";
+                resultado.style.color = "red";
+                resultado.textContent = "Erro na captação. Clique para falar novamente.";
+            };
+            
+            recognition.onend = () => {
+                estaEscutando = false; // Garante que o botão seja liberado
+                if(!document.body.classList.contains('sucesso')) {
+                    btnFalar.textContent = "INICIAR PROTOCOLO VOCAL";
+                }
+            };
+
+        } else {
+            resultado.style.color = "red";
+            resultado.textContent = "Navegador não suportado. Abra este link no Google Chrome.";
+        }
+    </script>
+
+</body>
+</html>
